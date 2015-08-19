@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Windows.Forms;
 
 namespace Pinger
@@ -11,6 +12,13 @@ namespace Pinger
         public TrayWorker()
         {
             _notifyIcon = new NotifyIcon {Text = "Pinger", Icon = Properties.Resources.Main};
+
+            var serverList = ConfigurationManager.AppSettings["ServerList"];
+            if (serverList == null) return;
+
+            var splitter = ConfigurationManager.AppSettings["SplitCharacter"];
+            var servers = serverList.Split(splitter[0]);
+            var freq = ConfigurationManager.AppSettings["PingFreq"];
 
             _contextMenu = new ContextMenuStrip();
             _contextMenu.Items.Add("Good", Properties.Resources.Ok);

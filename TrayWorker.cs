@@ -1,24 +1,25 @@
 ﻿using System;
-using System.Configuration;
+using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Pinger
 {
     public class TrayWorker
     {
-        private NotifyIcon _notifyIcon;
-        private ContextMenuStrip _contextMenu;
+        private readonly NotifyIcon _notifyIcon;
+        private readonly ContextMenuStrip _contextMenu;
+
+        private readonly PingService _pingService;
+
+        private readonly Settings _settings = new Settings();
+
+        private readonly Icon _ok = Icon.FromHandle(Properties.Resources.Ok.GetHicon());
+        private readonly Icon _bad = Icon.FromHandle(Properties.Resources.Bad.GetHicon());
 
         public TrayWorker()
         {
             _notifyIcon = new NotifyIcon {Text = "Pinger", Icon = Properties.Resources.Main};
-
-            var serverList = ConfigurationManager.AppSettings["ServerList"];
-            if (serverList == null) return;
-
-            var splitter = ConfigurationManager.AppSettings["SplitCharacter"];
-            var servers = serverList.Split(splitter[0]);
-            var freq = ConfigurationManager.AppSettings["PingFreq"];
 
             _contextMenu = new ContextMenuStrip();
             _contextMenu.Items.Add("Good", Properties.Resources.Ok);
@@ -28,8 +29,16 @@ namespace Pinger
 
             _notifyIcon.ContextMenuStrip = _contextMenu;
             _notifyIcon.Visible = true;
+
+            _pingService = new PingService(_settings.Servers.First(), _settings.Timeout, _settings.Freqency);
+            _pingService.PingCompleted += PingCompleted;
         }
 
+        private void PingCompleted(object sender, bool eventArgs)
+        {
+            _notifyIcon.Icon = eventArgs ? _ok : _bad;
+        }
+        
         private void OnQuit(object sender, EventArgs eventArgs)
         {
             _notifyIcon.Visible = false;

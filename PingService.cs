@@ -7,17 +7,20 @@ namespace Pinger
 {
     internal class PingService
     {
+        #region Privates
+
         private readonly string _adress;
         private readonly int _timeout;
         private readonly int _freqency;
         private readonly Ping _ping;
+        private readonly Timer _timer;
 
         // буфер для отправки
         private readonly byte[] buffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-        public EventHandler<bool> PingCompleted;
+        #endregion
 
-        private readonly Timer _timer;
+        public EventHandler<PingCompletedEventArgs> PingCompleted;
 
         public PingService(string adress, int timeout, int freqency)
         {
@@ -25,7 +28,7 @@ namespace Pinger
             _timeout = timeout;
             _freqency = freqency * 1000;
             _ping = new Ping();
-            _ping.PingCompleted += PingOnPingCompleted;
+            _ping.PingCompleted += OnPingCompleted;
 
             _timer = new Timer();
             _timer.Elapsed += TimerOnElapsed;
@@ -40,9 +43,9 @@ namespace Pinger
                 _timer.Interval = _freqency;
         }
 
-        private void PingOnPingCompleted(object sender, PingCompletedEventArgs pingCompletedEventArgs)
+        private void OnPingCompleted(object sender, PingCompletedEventArgs pingCompletedEventArgs)
         {
-            PingCompleted?.Invoke(sender, true);
+            PingCompleted?.Invoke(sender, pingCompletedEventArgs);
         }
     }
 }

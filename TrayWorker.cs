@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Windows.Forms;
+using Pinger.Properties;
 
 namespace Pinger
 {
     public class TrayWorker
     {
+        #region Privates
+
         private readonly NotifyIcon _notifyIcon;
         private readonly ContextMenuStrip _contextMenu;
 
-        private readonly PingService _pingService;
+        #region Icons
 
+        private readonly Icon _ok = Icon.FromHandle(Resources.Ok.GetHicon());
+        private readonly Icon _bad = Icon.FromHandle(Resources.Bad.GetHicon());
+
+        #endregion
+        
+        private readonly PingService _pingService;
         private readonly Settings _settings = new Settings();
 
-        private readonly Icon _ok = Icon.FromHandle(Properties.Resources.Ok.GetHicon());
-        private readonly Icon _bad = Icon.FromHandle(Properties.Resources.Bad.GetHicon());
-
+        #endregion
+        
         public TrayWorker()
         {
             _notifyIcon = new NotifyIcon {Text = "Pinger", Icon = Properties.Resources.Main};
@@ -34,9 +43,9 @@ namespace Pinger
             _pingService.PingCompleted += PingCompleted;
         }
 
-        private void PingCompleted(object sender, bool eventArgs)
+        private void PingCompleted(object sender, PingCompletedEventArgs eventArgs)
         {
-            _notifyIcon.Icon = eventArgs ? _ok : _bad;
+            _notifyIcon.Icon = eventArgs.Reply.Status == IPStatus.Success ? _ok : _bad;
         }
         
         private void OnQuit(object sender, EventArgs eventArgs)

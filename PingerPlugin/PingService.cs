@@ -3,7 +3,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Timers;
 
-namespace Pinger
+namespace PingerPlugin
 {
     internal class PingService
     {
@@ -25,7 +25,7 @@ namespace Pinger
         public PingService(string adress, int timeout, int freqency)
         {
             _adress = adress;
-            _timeout = timeout;
+            _timeout = timeout * 1000;
             _freqency = freqency * 1000;
             _ping = new Ping();
             _ping.PingCompleted += OnPingCompleted;
